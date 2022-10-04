@@ -13,7 +13,6 @@ import usericon from '../../assets/images/user.png'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Pressable } from 'react-native';
 import { AuthContext } from '../Context/AuthContext';
-import Header from '../screens/Header';
 import WalletPaymentScreen from '../screens/WalletPaymentScreen/WalletPaymentScreen';
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -97,34 +96,33 @@ function TripScreenStackNative({navigation}){
 function WalletScreenStackNative({navigation}){
     
     return(
-        <Stack.Navigator screenOptions={{headerTitleAlign: 'center'}}>
+        <Stack.Navigator>
         <Stack.Screen
         name="Wallet"
         component={ Wallet  }
         options={({navigation}) => ({
-          headerShadowVisible: false,
-            headerTitle: 'Wallet',
-            headerTitleAlign: 'center',
-            headerStyle: {
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 100,
-              backgroundColor: "#F9DD23",
-            },
-            headerTintColor: "black",
-            headerTitleStyle: {
-              color: "black",
-            },
-            headerRight: () => (
-                <Icon
-                  name={'bars'}
-                  size={24}
-                  style={{ marginLeft: 10 }}
-                  onPress={() =>
-                    navigation.toggleDrawer()
-                  }
-                />
-              ),
+          
+          headerTitleAlign: 'center',
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 100,
+            backgroundColor: "#F9DD23",
+          },
+          headerTintColor: "black",
+          headerTitleStyle: {
+            color: "black",
+          },
+          headerRight: () => (
+              <Icon
+                name={'bars'}
+                size={24}
+                style={{ marginLeft: 10 }}
+                onPress={() =>
+                  navigation.toggleDrawer()
+                }
+              />
+            ),
           })}>
         </Stack.Screen>
         <Stack.Screen

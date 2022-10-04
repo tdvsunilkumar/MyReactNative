@@ -5,9 +5,24 @@ const WalletPaymentScreen = (props) =>{
 
     const [amount, setamount] = useState(0);
 
+    useEffect(()=>{
        
-       return(
-        <Payment amount={ props.route.params.amount }/>
+    },[]);
+
+    const goBackToPreviousScreen = (txt) =>{
+        props.navigation.navigate({
+            name: 'Wallet',
+            params: { paymentAdded: true },
+            merge: true,
+          });
+        
+    }
+
+    return(
+        <Payment 
+        amount={ props.route.params.amount } 
+        customNavigation = { props.navigation }
+        goBackToPreviousScreen = { goBackToPreviousScreen }/>
        );
 }
 

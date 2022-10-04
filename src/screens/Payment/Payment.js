@@ -9,10 +9,11 @@ import * as c from '../../constant';
 import axios from "axios";
 import { RefreshControl, ScrollView, TextInput } from "react-native-gesture-handler";
 import { Platform } from "react-native";
-import { StripeProvider, CardField, useStripe, createSetupIntentOnBackend, stripe } from '@stripe/stripe-react-native';
 import Modal from "react-native-modal";
 import qs from 'qs-native';
-const Payment = ({navigation, amount}) =>{
+import SweetAlert from 'react-native-sweet-alert';
+
+const Payment = ({navigation, amount, customNavigation, goBackToPreviousScreen}) =>{
 
   const { userinfo, showToast, logout } = useContext(AuthContext);
   const [isLoading, setisLoading] = useState(false);
@@ -23,7 +24,6 @@ const Payment = ({navigation, amount}) =>{
   const deviceWidth = Dimensions.get("window").width;
   const {width, height} = Dimensions.get('window');
   const [UserDetails, setUserDetails] = useState({});
-  const { confirmSetupIntent, loading } = useStripe();
   const [cardNumber, setcardNumber] = useState('');
   const [expiryMonth, setexpiryMonth] = useState('');
   const [expiryYear, setexpiryYear] = useState();
@@ -33,8 +33,7 @@ const Payment = ({navigation, amount}) =>{
          ? Dimensions.get("window").height
           : require("react-native-extra-dimensions-android").get(
              "REAL_WINDOW_HEIGHT"
-         );
-  const { createPaymentMethod } = useStripe();   
+         ); 
   
   const getCustomerDetails = () =>{
     try{
@@ -141,14 +140,9 @@ const Payment = ({navigation, amount}) =>{
   }
 
   useEffect(()=>{
-    if(typeof amount != 'undefined'){
-      alert(amount);
-    }
     
     getCustomerDetails();
     getSavedCards();
-    
-
 },[]);
 
 const deleteCustCard = (cardId) =>{
@@ -188,7 +182,7 @@ const deleteCustCard = (cardId) =>{
 }
 
 const addMoneyToWalletCommonFunction = async (cardId) =>{
-  //alert();
+  setisLoading(true);
   let DataToSend = {
       user_type:c.USER_TYPE,
       amount:amount,
@@ -203,34 +197,53 @@ const addMoneyToWalletCommonFunction = async (cardId) =>{
     
 };
 try{
- console.log(DataToSend);
   var config = {
       method: 'post',
-      url: c.ADD_MONEY_TO_WALLET+'?'+newData,
-      data:{},
+      url: c.ADD_MONEY_TO_WALLET,
+      data:DataToSend,
       headers: options
     };
    axios(config)
   .then(response => {
-      let userData = response.data;
+    setisLoading(false);
+      let addMoneyRes = response.data;
       //console.log('i am result ',userData);
-      if(userData.success == true){
-          alert('Ready to move on payment screen');
-          setuserDynamicInfo(userData.data);
+      if(addMoneyRes.success == true){
+        SweetAlert.showAlertWithOptions({
+          title: 'Congratulations',
+          subTitle: '$'+amount+' added to your wallet successfully!',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          otherButtonTitle: 'Cancel',
+          otherButtonColor: '#dedede',
+          style: 'success',
+          cancellable: true
+        },
+          callback => {
+            customNavigation.navigate('Wallet',{
+          paymentAdded:true
+        });
+          });
+        //goBackToPreviousScreen('success');
+        
+        
+          
       }else{
-          showToast(userData.message,'error');
-
+          showToast(addMoneyRes.message,'error');
+          customNavigation.navigate('Wallet',{
+            paymentAdded:false
+          });  
       }
   }).catch((err) => {
       setisLoading(false);
       showToast(err.message,'error');
-      if(err.request.status == 401){
+      if(typeof err.request !== 'undefined' && err.request.status == 401){
           alert('401 error');
           //logout();
       }
   });
 }catch(e){
-  console.log(e);
+  setisLoading(false);
 }
   
 }  

@@ -21,6 +21,7 @@ import Moment from 'react-moment';
 import moment from 'moment';
 
 
+
 const HomeScreen = ( {navigation} ) =>{
     const { logout, showToast, userinfo } = useContext(AuthContext);
 
@@ -170,7 +171,11 @@ const HomeScreen = ( {navigation} ) =>{
     }
 
     useEffect(() => {
-        //navigation.navigate("Root");
+        //alert();
+        
+        navigation.addListener('focus', () => {
+            setuseDirection(false);
+          })
         getServiceList();
         retreiveData();
          let res = Permission.checkPermission(PERMISSION_TYPE.location).then((res) => {
@@ -444,7 +449,7 @@ const HomeScreen = ( {navigation} ) =>{
         { driverservices.map((item) =>{
                     return(
                     <TouchableOpacity
-                     key={ item } 
+                     key={ item.name+'-id' } 
                      style = {{ alignItems: 'center'}}  
                      onPress = { () => {
                              setserviceType(item);

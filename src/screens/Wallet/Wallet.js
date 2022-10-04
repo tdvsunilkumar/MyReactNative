@@ -1,16 +1,27 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Pressable } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { AuthContext } from "../../Context/AuthContext";
 import Icon  from "react-native-vector-icons/FontAwesome5";
+import * as c from '../../constant';
+import axios from "axios";
+import Spinner from "react-native-loading-spinner-overlay/lib";
 
-const Wallet = ({navigation}) =>{
+const Wallet = ({navigation , route}) =>{
+
+  const {userinfo, logout, showToast} = useContext(AuthContext);
 
   const [expandedPayHis, setexpandedPayHis] = useState(false);
 
   const [expandedAddMoney, setexpandedAddMoney] = useState(false);
 
   const [inputValue, setinputValue] = useState('');
+
+  const [paymentAdded, setpaymentAdded] = useState(false);
+
+  const [UserDetails, setUserDetails] = useState('');
+
+  const [isLoading, setisLoading] = useState(false);
 
     
    const  toggleExpand=(txt)=>{
@@ -37,14 +48,57 @@ const Wallet = ({navigation}) =>{
       });
       
     }
+
+    const getCustomerDetails = () =>{
+      try{
+        var config = {
+            method: 'get',
+            url: c.USER_DETAILS,
+            headers: { 
+              'Accept': 'application/json', 
+              'Authorization':'Bearer '+userinfo.data.access_token
+            }
+          };
+         axios(config)
+        .then(response => {
+            setisLoading(false);
+            let user = response.data;
+            if(user.success == true){
+                setUserDetails(user.data);
+                //console.log('i am user details', UserDetails);
+            }else{
+                showToast(user.message,'error');
+            }
+        }).catch((err) => {
+            if(err.request.status == 401){
+                logout();
+            }
+        });
+    }catch(e){
+        setisLoading(false);
+        alert(e);
+    }
+    }
+
+    useEffect(()=>{
+      getCustomerDetails();
+       navigation.addListener('focus', () => {
+        if(typeof route.params !== 'undefined' && route.params.paymentAdded == true){
+          setinputValue('');
+          getCustomerDetails();
+          navigation.setParams({ paymentAdded:false});
+        }
+      })
+    },[route.params?.paymentAdded]);
     
 
   return (
       
     <View style={{ backgroundColor:'#EEEEEE', height:'100%'}}>
+      <Spinner visible={isLoading}></Spinner>
       <View style={{ backgroundColor:'#F9DD23', alignItems:"center", padding:50}}>
         <Text style={{ fontSize:20}}>Total Wallet </Text>
-        <Text style={{ fontSize:25, fontWeight:"bold"}}>$ 200</Text>
+        <Text style={{ fontSize:25, fontWeight:"bold"}}>$ { typeof UserDetails !== 'undefined' ? UserDetails.wallet_balance : 0.00 }</Text>
       </View>
     <TouchableOpacity  onPress={()=>toggleExpand(0)}>
         <View style={styles.row}>

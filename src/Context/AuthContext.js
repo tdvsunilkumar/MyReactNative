@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }) =>{
     const [userDynamicInfo, setuserDynamicInfo] = useState({});
     const [Test, setTest] = useState('');
 
+   
+
     const showToast = (msg, type) => {
         Toast.show({
             type: type,
@@ -35,6 +37,7 @@ export const AuthProvider = ({ children }) =>{
             const userInfo = await AsyncStorage.getItem('userInfo');
             if(data == 'yes'){
                 setkeepLoggedIn('yes');
+                fetchUserDetails();
                 
             }
             const newData = JSON.parse(userInfo);
@@ -90,11 +93,12 @@ export const AuthProvider = ({ children }) =>{
 
     useEffect(() => {
         checkUserIsLoggedOrNot();
-        fetchUserDetails();
-        if(typeof userinfo.data !== 'undefined'){
-            //alert();
+        
+        // if(typeof userinfo.data !== 'undefined'){
+        //     alert();
+        //     fetchUserDetails();
             
-        }
+        // }
         
     },[])
 
@@ -221,6 +225,7 @@ export const AuthProvider = ({ children }) =>{
     return(
         <AuthContext.Provider 
           value={{isLoading, 
+            setisLoading,
             userinfo, 
             login, 
             showToast, 

@@ -5,10 +5,10 @@ import axios from 'axios';
 import { AuthContext } from '../../Context/AuthContext';
 import Toast  from 'react-native-toast-message';
 import  Icon  from 'react-native-vector-icons/Ionicons';
-
+import Spinner from 'react-native-loading-spinner-overlay/lib';
 const LoginForm = (props) => {
     const val = useContext(AuthContext);
-    const { isLoading, login, showToast} = useContext(AuthContext);
+    const { isLoading, login, showToast, setisLoading} = useContext(AuthContext);
     const [username, setusername] = useState('');
     const [password, setpassword] = useState('');
 
@@ -23,13 +23,14 @@ const LoginForm = (props) => {
     }
 
     const performLoginAction = (username, passw) => {
-        
+        setisLoading(true);
                 if( username == ''){
                     showToast('Mobile/Email is required field','error');
-                    //alert('Mobile/Email is required field');
+                    setisLoading(false);
                 }else if(passw == ''){
                     showToast('Password is required field','error');
                 }else{
+                    
                     login(username, passw);
                 }
         
@@ -39,7 +40,7 @@ const LoginForm = (props) => {
     return (
         
         <View style= {styles.container}>
-            
+            <Spinner visible={ isLoading}></Spinner>
             { props.label == 'call'?
             <View style={{ flexDirection:'row'}}>
                 <Icon style={{ left:20, top:25,position:'absolute'}} name="ios-phone-portrait-outline" size={20} />
